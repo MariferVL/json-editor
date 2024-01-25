@@ -56,25 +56,35 @@ export default function FormEditorPage() {
       const newKey = parentKey ? `${parentKey}.${key}` : key;
 
       if (Array.isArray(value)) {
-        return value.map((item, index) => renderForm(item, `${newKey}[${index}]`));
+        return value.map((item, index) => {
+          if (typeof item === 'string') {
+            return (
+              <div key={`${newKey}[${index}]`} className="mb-4">
+                <label className="block text-cdt-textBlue text-sm font-bold mb-2">{`${newKey}[${index}]`}</label>
+                <input type="text" value={item} onChange={(e) => handleInputChange(`${newKey}[${index}]`, e)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+              </div>
+            );
+          } else {
+            return renderForm(item, `${newKey}[${index}]`);
+          }
+        });
       } else if (typeof value === 'object' && value !== null) {
         return renderForm(value, newKey);
+      } else if (typeof value === 'string') {
+        return (
+          <div key={newKey} className="mb-4">
+            <label className="block text-cdt-textBlue text-sm font-bold mb-2">{newKey}</label>
+            <input type="text" value={value} onChange={(e) => handleInputChange(newKey, e)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+        );
       }
-
-      return (
-        <div key={newKey}>
-          <label>{newKey}</label>
-          <input type="text" value={value} onChange={(e) => handleInputChange(newKey, e)} />
-        </div>
-      );
     });
   };
 
   return (
-    <div>
-      <h1>Editando {fileName} del Grupo {groupCode} con Formulario</h1>
-      <form>{renderForm(content)}</form>
+    <div className="container mx-auto px-4">
+      <h1 className="text-4xl font-bold text-cdt-textBlue mb-8">Editando {fileName} del Grupo {groupCode} con Formulario</h1>
+      <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">{renderForm(content)}</form>
     </div>
   );
 }
-
