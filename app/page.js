@@ -77,42 +77,41 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Json Editor</h1>
-      <div>
-        <h2>Selecciona un Código:</h2>
-        {/* Dropdown for selecting groups */}
+    <main className="flex min-h-screen flex-col items-center justify-center p-6 dark:bg-gray-900 dark:text-white">
+      <h1 className="text-4xl font-bold mb-4 text-center">Json Editor</h1>
+      <div className="w-full max-w-md mx-auto">
+        <h2 className="text-2xl font-bold mb-2">Selecciona un Código:</h2>
         <select
           value={selectedGroup || ''}
           onChange={(e) => handleGroupSelection(e.target.value)}
+          className="mb-4 w-full p-2 border-none rounded-md dark:bg-gray-800 dark:text-white"
         >
           {generateOptions(groups)}
         </select>
 
         {selectedGroup && (
           <>
-            <h2>Selecciona un Archivo para el grupo {selectedGroup}</h2>
-            {/* Dropdown for selecting files */}
+            <h2 className="text-2xl font-bold mb-2">Selecciona un Archivo para el grupo {selectedGroup}</h2>
             <select
               value={selectedFile || ''}
               onChange={(e) => handleFileSelection(e.target.value)}
+              className="mb-4 w-full p-2 border-none dark:bg-gray-800 dark:text-white rounded-md"
             >
               {generateOptions(filesInGroup)}
             </select>
 
-            {/* Buttons to edit with different editors */}
             {selectedGroup && selectedFile && (
-              <div>
+              <div className="flex space-x-2">
                 <Link
                   href={`/form-editor/[groupCode]/[fileName]`}
                   as={`/form-editor/${selectedGroup}/${selectedFile.replace('.json', '')}`}
-                >
+                  className="inline-block no-underline text-center py-2 px-4 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 transition-colors duration-200 dark:bg-green-600 dark:hover:bg-green-700 dark:active:bg-green-800 dark:focus:ring-green-600"                >
                   Editar con Formulario
                 </Link>
                 <Link
                   href={`/full-editor/[groupCode]/[fileName]`}
                   as={`/full-editor/${selectedGroup}/${selectedFile.replace('.json', '')}`}
-                >
+                  className="inline-block no-underline text-center py-2 px-4 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 transition-colors duration-200 dark:bg-green-600 dark:hover:bg-green-700 dark:active:bg-green-800 dark:focus:ring-green-600"                >
                   Editar con Full Editor
                 </Link>
               </div>
