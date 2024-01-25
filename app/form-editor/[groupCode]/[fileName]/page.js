@@ -1,5 +1,5 @@
 "use client";
-import { getFileContent } from '@/app/api';
+import { getFileContent,saveFileContent } from '@/app/api';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -34,7 +34,7 @@ export default function FormEditorPage() {
   }, [pathname, groupCode, fileName]);
 
   if (!content) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-screen">Cargando...</div>;
   }
 
   const handleInputChange = (keyPath, event) => {
@@ -51,6 +51,16 @@ export default function FormEditorPage() {
     setContent(newContent);
   };
 
+
+  const handleSave = async () => {
+    try {
+      await saveFileContent(groupCode, fileName, content);
+      alert('Contenido guardado exitosamente');
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  };
+
   const renderForm = (data, parentKey = '') => {
     return Object.entries(data).map(([key, value]) => {
       const newKey = parentKey ? `${parentKey}.${key}` : key;
@@ -59,11 +69,21 @@ export default function FormEditorPage() {
         return value.map((item, index) => {
           if (typeof item === 'string') {
             return (
-              <div key={`${newKey}[${index}]`} className="mb-4">
-                <label className="block text-cdt-textBlue text-sm font-bold mb-2">{`${newKey}[${index}]`}</label>
-                <input type="text" value={item} onChange={(e) => handleInputChange(`${newKey}[${index}]`, e)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+              <div key={`${newKey}[${index}]`} className="md:flex md:items-center mb-6">
+                <div className="md:w-1/3 flex items-center">
+                  <label className="block text-gray-500 dark:text-gray-300 font-bold md:text-right mb-1 md:mb-0 pr-4 break-words">{`${newKey}[${index}]`}</label>
+                </div>
+                <div className="md:w-2/3">
+                  <input
+                    className="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-700 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-purple-500"
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleInputChange(`${newKey}[${index}]`, e)}
+                  />
+                </div>
               </div>
             );
+
           } else {
             return renderForm(item, `${newKey}[${index}]`);
           }
@@ -72,19 +92,39 @@ export default function FormEditorPage() {
         return renderForm(value, newKey);
       } else if (typeof value === 'string') {
         return (
-          <div key={newKey} className="mb-4">
-            <label className="block text-cdt-textBlue text-sm font-bold mb-2">{newKey}</label>
-            <input type="text" value={value} onChange={(e) => handleInputChange(newKey, e)} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <div key={newKey} className="md:flex md:items-center mb-6">
+            <div className="md:w-1/3 flex items-center">
+              <label className="block text-gray-500 dark:text-gray-300 font-bold md:text-right mb-1 md:mb-0 pr-4 break-words">{newKey}</label>
+            </div>
+            <div className="md:w-2/3">
+              <input
+                className="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-700 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-purple-500"
+                type="text"
+                value={value}
+                onChange={(e) => handleInputChange(newKey, e)} />
+            </div>
           </div>
         );
+
       }
     });
   };
 
   return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-4xl font-bold text-cdt-textBlue mb-8">Editando {fileName} del Grupo {groupCode} con Formulario</h1>
-      <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">{renderForm(content)}</form>
-    </div>
+    <div className="flex flex-col min-h-screen p-24 dark:bg-gray-900 dark:text-white">
+    <h1 className="text-gray-700 dark:text-gray-300 col-span-full">
+      Editando {fileName} del Grupo {groupCode} con Formulario
+    </h1>
+    <form className="w-full max-w-sm col-span-full">
+      {renderForm(content)}
+      <div className="md:flex md:items-center">
+        <div className="md:w-1/3"></div>
+        <div className="md:w-2/3">
+        <button onClick={handleSave} className="self-start mb-4 px-4 py-2 bg-blue-600 border-none text-white rounded-md">Guardar</button>
+
+        </div>
+      </div>
+    </form>
+  </div>
   );
 }
