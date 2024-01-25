@@ -1,16 +1,12 @@
-/** 
- * Configuración de Tailwind CSS
- * 
- * @type {import('tailwindcss').Config}
- */
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   // Modo "just-in-time" para mejorar el rendimiento
   mode: 'jit',
   // Rutas de contenido para las cuales se generará el CSS
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   // Personalizaciones del tema
   theme: {
@@ -42,6 +38,6 @@ module.exports = {
   },
   // Plugins adicionales, como soporte para formularios de Tailwind CSS
   plugins: [
-    require('@tailwindcss/forms'),
+    '@tailwindcss/forms',
   ],
 }
