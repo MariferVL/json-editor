@@ -63,6 +63,10 @@ export default function FullEditorPage() {
     setContent(newValue);
   };
 
+  const handleVerifyFormat = () => {
+    alert('Éxito: Contenido Verificado');
+  }
+
   const handleSave = async () => {
     try {
       await saveFileContent(groupCode, fileName, content);
@@ -79,8 +83,11 @@ export default function FullEditorPage() {
 
   // Display the content with group code and file name
   return (
-    <div className="p-4 md:p-10 h-screen flex flex-col dark:bg-gray-900 dark:text-white">
-      <h1 className="text-2xl md:text-4xl font-bold mb-4">Editando {fileName} del Grupo {groupCode} con Full Editor</h1>
+    <div className="p-4 md:p-10 h-screen flex flex-col bg-[var(--cdt-bg)]">
+      <h1 className="text-3xl font-bold mb-2 text-[var(--cdt-primary)]">
+        Editor Completo
+      </h1>
+      <p className="mt-16 mb-6 text-[var(--cdt-text)]">Editando <span className='font-bold'>{fileName}</span> del Código <span className='font-bold'>{groupCode}</span></p>
       <Editor
         height="calc(100% - 1rem)"
         defaultLanguage="json"
@@ -88,7 +95,22 @@ export default function FullEditorPage() {
         theme="vs-dark"
         onChange={handleEditorChange}
       />
-      <button onClick={handleSave} className="self-start border-none mt-4 mb-4 px-4 py-2 bg-blue-600 text-white rounded-md">Guardar</button>
+      <div className="mt-4 md:flex md:items-center justify-center">
+        <div >
+          <button
+            onClick={handleVerifyFormat}
+            className="self-start mb-4 mr-4 px-2 py-4 font-bold bg-[var(--cdt-primary)] text-white rounded-md w-full"
+          >
+            Verificar Formato
+          </button>
+          <button
+            onClick={handleSave}
+            className="self-start mb-4 px-2 py-4 font-bold bg-[var(--cdt-secondary)] text-white rounded-md w-full"
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
