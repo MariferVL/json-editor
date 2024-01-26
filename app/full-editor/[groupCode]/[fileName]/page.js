@@ -83,24 +83,26 @@ export default function FullEditorPage() {
   };
 
   const handleVerifyFormat = () => {
-    console.log('handlehandleVerifyFormat', isJson(content));
-    console.log('Content verify: ', content);
-
-    setModalTitle('Éxito');
-    setModalContent('Contenido Verificado');
-  }
+    try {
+      JSON.parse(content);
+      setModalTitle('Éxito');
+      setModalContent('Contenido Verificado');
+    } catch (error) {
+      console.error('Error en el formato JSON:', error);
+      setModalTitle('Error');
+      setModalContent('El contenido no es un formato JSON válido');
+    }
+  };
 
   const handleSave = async () => {
-    console.log('content: ', content);
-    console.log('handleSave', isJson(content));
-
     try {
+      JSON.parse(content);
+
       const result = await saveFileContent(groupCode, fileName, content);
       setModalTitle('Contenido guardado exitosamente');
-      console.log('handleSave try', isJson(result.content));
       setModalContent(result.content);
     } catch (error) {
-      console.error('Error saving data:', error);
+      console.error('Error al guardar el contenido:', error);
       setModalTitle('Error');
       setModalContent('El contenido no es un formato JSON válido');
     }

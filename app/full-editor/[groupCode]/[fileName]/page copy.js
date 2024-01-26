@@ -27,7 +27,8 @@ export default function FullEditorPage() {
       }
       try {
         const response = await getFileContent(groupCode, fileName);
-        setContent(response);
+        const data = JSON.stringify(response, null, 2);
+        setContent(data);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -42,23 +43,31 @@ export default function FullEditorPage() {
   };
 
   const handleVerifyFormat = () => {
-    setModalTitle('Éxito');
-    setModalContent('Contenido Verificado');
-  }
-
-  const handleSave = async () => {
-    console.log('content: ', content);
-
     try {
-      const result = await saveFileContent(groupCode, fileName, content);
-      setModalTitle('Contenido guardado exitosamente');
-      setModalContent(result.content);
+      JSON.parse(content);
+      setModalTitle('Éxito');
+      setModalContent('Contenido Verificado');
     } catch (error) {
-      console.error('Error saving data:', error);
+      console.error('Error en el formato JSON:', error);
       setModalTitle('Error');
       setModalContent('El contenido no es un formato JSON válido');
     }
   };
+
+  const handleSave = async () => {
+    try {
+      JSON.parse(content);
+
+      const result = await saveFileContent(groupCode, fileName, content);
+      setModalTitle('Contenido guardado exitosamente');
+      setModalContent(result.content);
+    } catch (error) {
+      console.error('Error al guardar el contenido:', error);
+      setModalTitle('Error');
+      setModalContent('El contenido no es un formato JSON válido');
+    }
+  };
+
   if (!content) {
     return <div className="flex items-center justify-center h-screen">Cargando...</div>;
   }
