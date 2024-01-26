@@ -34,17 +34,14 @@ export const saveFileContent = (groupCode, fileName, content) => {
   return new Promise((resolve, reject) => {
     try {
       console.log(`Saving content for ${groupCode}/${fileName}`);
-      
+
       setTimeout(() => {
-        if (fileData[groupCode]) {
-          fileData[groupCode][fileName] = content;
-        }
-        
-        resolve({ message: 'Content saved successfully.' });
-      }, 2000);
+        resolve({ message: 'Content saved successfully.', content });
+      }, 1000);
     } catch (error) {
       console.error('Error saving data:', error);
       reject(error);
     }
   });
 };
+

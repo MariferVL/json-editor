@@ -5,9 +5,13 @@
 :root {
   --cdt-primary: #fcaf17;
   --cdt-secondary: #004384;
-  --cdt-text: #15243a; 
+  --cdt-text: #15243a;
   --cdt-bg: #ffffff;
   --cdt-link: #818181;
+  --cdt-label-1: #ff5733;
+  --cdt-label-2: #33ff57;
+  --cdt-label-3: #3366ff;
+  --cdt-label-4: #ff3366;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +21,10 @@
     --cdt-text: rgba(241, 240, 247, 0.73);
     --cdt-bg: #001933;
     --cdt-link: #A9A9A9;
+    --cdt-label-1: #ff8c66;
+    --cdt-label-2: #66ff8c;
+    --cdt-label-3: #668cff;
+    --cdt-label-4: #ff66a3;
   }
 }
 
