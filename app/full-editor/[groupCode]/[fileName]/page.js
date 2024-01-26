@@ -95,17 +95,17 @@ export default function FullEditorPage() {
         theme="vs-dark"
         onChange={handleEditorChange}
       />
-      <div className="mt-4 md:flex md:items-center justify-center">
+      <div className="mt-8 md:flex md:items-center justify-center">
         <div >
           <button
             onClick={handleVerifyFormat}
-            className="self-start mb-4 mr-4 px-2 py-4 font-bold bg-[var(--cdt-primary)] text-white rounded-md w-full"
+            className="self-start mb-4 mr-4 px-2 py-4 font-bold bg-[var(--cdt-primary)] text-white text-lg rounded-md w-full"
           >
             Verificar Formato
           </button>
           <button
             onClick={handleSave}
-            className="self-start mb-4 px-2 py-4 font-bold bg-[var(--cdt-secondary)] text-white rounded-md w-full"
+            className="self-start mb-4 px-2 py-4 font-bold bg-[var(--cdt-secondary)] text-white text-lg rounded-md w-full"
           >
             Guardar
           </button>
