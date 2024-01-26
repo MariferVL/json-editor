@@ -51,7 +51,10 @@ export default function FullEditorPage() {
       try {
         // Fetch content based on group code and file name
         const response = await getFileContent(groupCode, fileName);
-        setContent(response);
+        const data = JSON.stringify(response, null, 2)
+        console.log('Fetch: ', isJson(data));
+        console.log('Fetch Content: ', data);
+        setContent(data);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -62,21 +65,39 @@ export default function FullEditorPage() {
     fetchData();
   }, [pathname, groupCode, fileName]);
 
-  const handleEditorChange = (newValue, e) => {
+  const isJson = (str) => {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  };
+
+
+  const handleEditorChange = (newValue) => {
+    console.log('handleEditorChange', isJson(newValue));
+    console.log('new value: ', newValue);
+
     setContent(newValue);
   };
 
   const handleVerifyFormat = () => {
+    console.log('handlehandleVerifyFormat', isJson(content));
+    console.log('Content verify: ', content);
+
     setModalTitle('Éxito');
     setModalContent('Contenido Verificado');
   }
 
   const handleSave = async () => {
     console.log('content: ', content);
+    console.log('handleSave', isJson(content));
 
     try {
       const result = await saveFileContent(groupCode, fileName, content);
       setModalTitle('Contenido guardado exitosamente');
+      console.log('handleSave try', isJson(result.content));
       setModalContent(result.content);
     } catch (error) {
       console.error('Error saving data:', error);
@@ -100,7 +121,7 @@ export default function FullEditorPage() {
       <Editor
         height="calc(100% - 1rem)"
         defaultLanguage="json"
-        defaultValue={JSON.stringify(content, null, 2)}
+        defaultValue={content}
         theme="vs-dark"
         onChange={handleEditorChange}
       />
