@@ -144,16 +144,16 @@ export default function FormEditorPage() {
     });
   };
   return (
-    <div className="md: p-4 md:p-10 h-full flex flex-col bg-[var(--cdt-bg)] ">
+    <div className="p-4 md:p-10 h-full flex flex-col bg-[var(--cdt-bg)] ">
       <h1 className="text-3xl font-bold mb-2 text-[var(--cdt-primary)]">
         Formulario Dinámico
       </h1>
       <p className="mt-16 mb-6 text-[var(--cdt-text)]">Editando <span className='font-bold'>{fileName}</span> del Código <span className='font-bold'>{groupCode}</span></p>
       <div className='flex flex-col items-center justify-center mr-8 md:mr-32 md:ml-4'>
-        <form className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <form className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-1 sm:m-0 sm:p-0">
           {renderForm(content)}
         </form>
-        <div className="mt-4 md:flex md:items-center justify-center">
+        <div className="mt-4 sm:ml-32 md:flex md:items-center justify-center">
           <div>
             <button
               onClick={handleVerifyFormat}
