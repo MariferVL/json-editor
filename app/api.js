@@ -3,16 +3,19 @@ const fileData = {
     'data11': require('./json-files/data11.json'),
     'data22': require('./json-files/data22.json'),
     'data33': require('./json-files/data33.json'),
+    'data44': require('./json-files/data44.json'),
   },
   '8030': {
     'data11': require('./json-files/data11.json'),
     'data22': require('./json-files/data22.json'),
     'data33': require('./json-files/data33.json'),
+    'data44': require('./json-files/data44.json'),
   },
   '7010': {
     'data11': require('./json-files/data11.json'),
     'data22': require('./json-files/data22.json'),
     'data33': require('./json-files/data33.json'),
+    'data44': require('./json-files/data44.json'),
   },
 };
 

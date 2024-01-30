@@ -115,34 +115,40 @@ export default function FullEditorPage() {
 
   // Display the content with group code and file name
   return (
-    <div className="p-4 md:p-10 h-screen flex flex-col bg-[var(--cdt-bg)]">
+    <div className="p-4 lg:px-16 lg:pt-8 min-h-screen flex flex-col bg-[var(--cdt-bg)]">
       <h1 className="text-3xl font-bold mb-2 text-[var(--cdt-primary)]">
         Editor Completo
       </h1>
-      <p className="mt-16 mb-6 text-[var(--cdt-text)]">Editando <span className='font-bold'>{fileName}</span> del Código <span className='font-bold'>{groupCode}</span></p>
-      <Editor
-        height="calc(100% - 1rem)"
-        defaultLanguage="json"
-        defaultValue={content}
-        theme="vs-dark"
-        onChange={handleEditorChange}
-      />
-      <div className="mt-8 md:flex md:items-center justify-center">
-        <div >
-          <button
-            onClick={handleVerifyFormat}
-            className="self-start mb-4 mr-4 px-2 py-4 font-bold bg-[var(--cdt-primary)] text-white text-lg rounded-md w-full"
-          >
-            Verificar Formato
-          </button>
-          <button
-            onClick={handleSave}
-            className="self-start mb-4 px-2 py-4 font-bold bg-[var(--cdt-secondary)] text-white text-lg rounded-md w-full"
-          >
-            Guardar
-          </button>
+      <p className="mt-3 lg:mb-16 text-[var(--cdt-text)]">Editando <span className='font-bold'>{fileName}</span> del Código <span className='font-bold'>{groupCode}</span></p>
+
+      <div className='h-screen flex flex-col items-center'>
+        <Editor
+          height={window.innerHeight < 500 ? "100%" : "calc(55% - 1rem)"}
+          width={window.innerWidth < 800 ? "100%" : "calc(66% - 1rem)"}
+          defaultLanguage="json"
+          defaultValue={content}
+          theme="vs-dark"
+          onChange={handleEditorChange}
+        />
+        <div className="mt-8 md:flex justify-center">
+          <div >
+            <button
+              onClick={handleVerifyFormat}
+              className="self-start mb-4 mr-4 px-2 py-4 font-bold bg-[var(--cdt-primary)] text-white text-lg rounded-md w-full"
+            >
+              Verificar Formato
+            </button>
+            <button
+              onClick={handleSave}
+              className="self-start mb-4 px-2 py-4 font-bold bg-[var(--cdt-secondary)] text-white text-lg rounded-md w-full"
+            >
+              Guardar
+            </button>
+          </div>
         </div>
       </div>
+
+
       {modalContent && (
         <Modal
           title={modalTitle}

@@ -144,7 +144,7 @@ export default function FormEditorPage() {
     });
   };
   return (
-    <div className="p-4 md:p-10 h-full flex flex-col bg-[var(--cdt-bg)] ">
+    <div className="p-4 md:p-10 min-h-screen flex flex-col bg-[var(--cdt-bg)] ">
       <h1 className="text-3xl font-bold mb-2 text-[var(--cdt-primary)]">
         Formulario Dinámico
       </h1>
