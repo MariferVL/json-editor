@@ -1,159 +1,269 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useReducer } from 'react';
 import { usePathname } from 'next/navigation';
 import { getFileContent, saveFileContent } from '@/app/api';
 import Modal from '@/app/component/modal';
+import { JsonForms } from '@jsonforms/react';
+import { materialCells, materialRenderers } from '@jsonforms/material-renderers';
+
+const initialState = {
+  groupCode: null,
+  fileName: null,
+  modalContent: null,
+  modalTitle: null,
+  data: null,
+  schema: null,
+  uischema: null,
+  locale: 'es',
+};
+
+const actionTypes = {
+  SET_DATA: 'SET_DATA',
+  SET_SCHEMA: 'SET_SCHEMA',
+  SET_UISCHEMA: 'SET_UISCHEMA',
+  SET_GROUP_CODE: 'SET_GROUP_CODE',
+  SET_FILE_NAME: 'SET_FILE_NAME',
+  SET_MODAL_CONTENT: 'SET_MODAL_CONTENT',
+  SET_MODAL_TITLE: 'SET_MODAL_TITLE',
+  SET_LOCALE: 'SET_LOCALE',
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case actionTypes.SET_DATA:
+      return { ...state, data: action.payload };
+    case actionTypes.SET_SCHEMA:
+      return { ...state, schema: action.payload };
+    case actionTypes.SET_UISCHEMA:
+      return { ...state, uischema: action.payload };
+    case actionTypes.SET_GROUP_CODE:
+      return { ...state, groupCode: action.payload };
+    case actionTypes.SET_FILE_NAME:
+      return { ...state, fileName: action.payload };
+    case actionTypes.SET_MODAL_CONTENT:
+      return { ...state, modalContent: action.payload };
+    case actionTypes.SET_MODAL_TITLE:
+      return { ...state, modalTitle: action.payload };
+    case actionTypes.SET_LOCALE:
+      return { ...state, locale: action.payload };
+    default:
+      return state;
+  }
+};
 
 export default function FormEditorPage() {
   const pathname = usePathname();
-  const [groupCode, setGroupCode] = useState(null);
-  const [fileName, setFileName] = useState(null);
-  const [content, setContent] = useState(null);
-  const [modalContent, setModalContent] = useState(null);
-  const [modalTitle, setModalTitle] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { groupCode, fileName, modalContent, modalTitle, data, schema, uischema, locale } = state;
+
+  const languageOptions = [
+    { value: 'es', label: 'Default' },
+    { value: 'en', label: 'English' },
+    { value: 'zh', label: 'Chinese' },
+    { value: 'hi', label: 'Hindi' },
+    { value: 'ar', label: 'Arabic' },
+    { value: 'pt', label: 'Portuguese' },
+    { value: 'bn', label: 'Bengali' },
+    { value: 'ru', label: 'Russian' },
+    { value: 'ja', label: 'Japanese' },
+    { value: 'pa', label: 'Punjabi' },
+  ];
+
+  const createTranslator = (locale) => (key, defaultMessage) => {
+    console.log(`Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`);
+    return defaultMessage;
+  };
+
+  const [jsonFormsConfig, setJsonFormsConfig] = useState({
+    renderers: materialRenderers,
+    cells: materialCells,
+    i18n: { locale, translate: createTranslator(locale) },
+  });
+
+
+  function generateSchema(jsonData) {
+    let schema = {};
+
+    if (Array.isArray(jsonData)) {
+      schema.type = 'array';
+      schema.items = jsonData.length > 0 ? generateSchema(jsonData[0]) : {};
+    } else if (typeof jsonData === 'object' && jsonData !== null) {
+      schema.type = 'object';
+      schema.properties = {};
+      for (const key in jsonData) {
+        if (jsonData.hasOwnProperty(key)) {
+          schema.properties[key] = generateSchema(jsonData[key]);
+        }
+      }
+    } else {
+      schema.type = typeof jsonData;
+      if (schema.type === 'string') {
+        const date = Date.parse(jsonData);
+        if (!isNaN(date)) {
+          schema.format = 'date-time';
+        }
+      }
+    }
+    return schema;
+  }
+
+  function generateUischema(schema) {
+    const uischema = {
+      type: 'VerticalLayout',
+      elements: [],
+    };
+
+    for (const key in schema.properties) {
+      if (schema.properties.hasOwnProperty(key)) {
+        const field = {
+          type: 'Control',
+          scope: `#/properties/${key}`,
+        };
+        uischema.elements.push(field);
+      }
+    }
+
+    return uischema;
+  }
+
+  const handleLanguageChange = (event) => {
+    const newLocale = event.target.value;
+    console.log('New Locale:', newLocale);
+    dispatch({ type: actionTypes.SET_LOCALE, payload: newLocale });
+
+    setJsonFormsConfig({
+      ...jsonFormsConfig,
+      i18n: { locale: newLocale, translate: createTranslator(newLocale) },
+    });
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
       const segments = pathname.split('/');
       const segment2 = segments[2];
       const segment3 = segments[3];
-      setGroupCode(segment2);
-      setFileName(segment3);
 
-      if (!groupCode || !fileName) {
-        console.log('Group Code or File Name is undefined:');
+      dispatch({ type: actionTypes.SET_GROUP_CODE, payload: segment2 });
+      dispatch({ type: actionTypes.SET_FILE_NAME, payload: segment3 });
+
+      if (!segment2 || !segment3) {
+        dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
+        dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: 'Código de Grupo o Nombre de archivo es: undefined.' });
         return;
       }
 
       try {
-        const response = await getFileContent(groupCode, fileName);
-        setContent(response);
+        const response = await getFileContent(segment2, segment3);
+        const generatedSchema = generateSchema(response);
+
+        dispatch({ type: actionTypes.SET_DATA, payload: response });
+        dispatch({ type: actionTypes.SET_SCHEMA, payload: generatedSchema });
       } catch (error) {
         console.error('Error fetching data:', error);
+        dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
+        dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: `Hubo un problema al obtener los datos: ${error.message}` });
       }
     };
 
     fetchData();
   }, [pathname, groupCode, fileName]);
 
-  if (!content) {
-    return <div className="flex items-center justify-center h-screen">Cargando...</div>;
-  }
+  useEffect(() => {
+    if (schema) {
+      dispatch({ type: actionTypes.SET_UISCHEMA, payload: generateUischema(schema) });
+    }
 
-  const handleInputChange = (keyPath, event) => {
-    const newContent = { ...content };
-    let keyPathArray = keyPath.split('.');
-    let lastKey = keyPathArray.pop();
-    let point = newContent;
+  }, [schema]);
 
-    keyPathArray.forEach((key) => {
-      point = point[key];
+  useEffect(() => {
+    setJsonFormsConfig({
+      ...jsonFormsConfig,
+      schema: schema,
+      uischema: uischema,
+      data: data,
     });
 
-    point[lastKey] = event.target.value;
-    setFormContent(newContent);
-  };
+  }, [schema, uischema, data]);
+
+  useEffect(() => {
+    console.log('Updating jsonFormsConfig:', jsonFormsConfig);
+    setJsonFormsConfig({
+      ...jsonFormsConfig,
+      schema: schema,
+      uischema: uischema,
+      data: data,
+      i18n: { locale: locale, translate: createTranslator(locale) },
+    });
+
+    console.log('schema: ', schema);
+    console.log('uischema: ', uischema);
+    console.log('data: ', data);
+    console.log('locale: ', locale);
+
+  }, [schema, uischema, data, locale]);
+
 
   const handleVerifyFormat = () => {
     try {
-      JSON.parse(content);
-      setModalTitle('Éxito');
-      setModalContent('Contenido Verificado');
+      JSON.parse(data);
+      dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Éxito' });
+      dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: 'Contenido Verificado' });
+
     } catch (error) {
-      setModalTitle('Error');
-      setModalContent('El contenido no es un JSON válido');
+      dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
+      dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: `El contenido no es un JSON válido: ${error.message}` });
     }
   }
 
   const handleSave = async () => {
     try {
-      JSON.parse(content);
+      JSON.parse(data);
       try {
-        const result = await saveFileContent(groupCode, fileName, content);
-        setModalTitle('Contenido guardado exitosamente');
-        setModalContent(result.content);
+        const result = await saveFileContent(groupCode, fileName, data);
+        dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Contenido guardado exitosamente' });
+        dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: result.data});
+
       } catch (error) {
         console.error('Error saving data:', error);
+        dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
+        dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: `Error guardando la data: ${error.message}` });
       }
     } catch (error) {
-      setModalTitle('Error');
-      setModalContent('El contenido no es un JSON válido');
+      dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
+      dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: `El contenido no es un JSON válido: ${error.message}` });
+
     }
   };
 
-
-  const renderForm = (data, parentKey = '', colors = []) => {
-    const getColorForLevel = (level) => {
-      const baseColors = [
-        'var(--cdt-label-1)',
-        'var(--cdt-label-2)',
-        'var(--cdt-label-3)',
-        'var(--cdt-label-4)',
-      ];
-      const index = level % baseColors.length;
-      return baseColors[index];
-    };
-
-    return Object.entries(data).map(([key, value], index) => {
-      const newKey = parentKey ? `${parentKey}.${key}` : key;
-      const labelColor = getColorForLevel(colors.length);
-      if (Array.isArray(value)) {
-        return value.map((item, index) => {
-          if (typeof item === 'string') {
-            return (
-              <div key={`${newKey}[${index}]`} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-8">
-                <div className="flex items-right md:pl-16">
-                  <label className={`block font-bold md:text-right mb-1 md:mb-0 pr-4 break-words w-full`} style={{ color: labelColor, wordWrap: 'break-word', overflowWrap: 'anywhere' }}>
-                    {`${newKey}[${index}]`}
-                    : </label>
-                </div>
-                <div>
-                  <textarea
-                    className="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-700 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-purple-500"
-                    value={item}
-                    onChange={(e) => handleInputChange(`${newKey}[${index}]`, e)}
-                  />
-                </div>
-              </div>
-
-            );
-          } else {
-            return renderForm(item, `${newKey}[${index}]`, colors.concat(labelColor));
-          }
-        });
-      } else if (typeof value === 'object' && value !== null) {
-        return renderForm(value, newKey, colors.concat(labelColor));
-      } else if (typeof value === 'string') {
-        return (
-          <div key={newKey} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-8">
-            <div className="flex items-right md:pl-16">
-              <label className={`block font-bold md:text-right mb-1 md:mb-0 pr-4 break-words w-full`} style={{ color: labelColor, wordWrap: 'break-word' }}>
-                {newKey}
-                : </label>
-            </div>
-            <div>
-              <textarea
-                className="bg-gray-200 dark:bg-gray-800 appearance-none border-2 border-gray-200 dark:border-gray-700 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-purple-500"
-                value={value}
-                onChange={(e) => handleInputChange(newKey, e)}
-              />
-            </div>
-          </div>
-        );
-      }
-    });
-  };
   return (
-    <div className="p-4 md:p-10 min-h-screen flex flex-col bg-[var(--cdt-bg)] ">
-      <h1 className="text-3xl font-bold mb-2 text-[var(--cdt-primary)]">
-        Formulario Dinámico
-      </h1>
-      <p className="mt-16 mb-6 text-[var(--cdt-text)]">Editando <span className='font-bold'>{fileName}</span> del Código <span className='font-bold'>{groupCode}</span></p>
-      <div className='flex flex-col items-center justify-center mr-8 md:mr-32 md:ml-4'>
-        <form className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-1 sm:m-0 sm:p-0">
-          {renderForm(content)}
-        </form>
-        <div className="mt-4 sm:ml-32 md:flex md:items-center justify-center">
+    <main className="p-4 md:p-10 min-h-screen flex flex-col bg-[var(--cdt-bg)] ">
+      <header>
+        <h1 className="text-3xl font-bold mb-2 text-[var(--cdt-primary)]">
+          Formulario Dinámico
+        </h1>
+        <p className="mt-8 mb-16 text-[var(--cdt-text)]">Editando <span className='font-bold'>{fileName}</span> del Código <span className='font-bold'>{groupCode}</span></p>
+      </header>
+      <section className='flex flex-col items-center justify-center lg:mx-40'>
+        <div className="w-full max-w-md mx-auto">
+          <label htmlFor="languageSelect" className="text-2xl font-bold mb-2">Selecciona Idioma: </label>
+          <select
+            id="languageSelect"
+            value={locale}
+            onChange={handleLanguageChange}
+            className="mb-4 w-full p-2 border-none rounded-md dark:bg-gray-800 dark:text-white"
+          >
+            {languageOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        {jsonFormsConfig.schema && (
+          <JsonForms {...jsonFormsConfig} />
+        )}
+        <div className="mt-4 flex items-center justify-center">
           <div>
             <button
               onClick={handleVerifyFormat}
@@ -169,16 +279,18 @@ export default function FormEditorPage() {
             </button>
           </div>
         </div>
-      </div>
+      </section>
       {modalContent && (
         <Modal
           title={modalTitle}
           content={modalContent}
           isVerify={modalTitle === 'Éxito' || modalTitle === 'Error'}
-          onClose={() => { setModalContent(null); setModalTitle(null); }}
+          onClose={() => {
+            dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: null });
+            dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: null });
+          }}
         />
       )}
-
-    </div>
+    </main>
   );
 }

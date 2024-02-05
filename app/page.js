@@ -80,8 +80,9 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-6 dark:bg-gray-900 dark:text-white">
       <h1 className="text-4xl font-bold mb-4 text-center">Json Editor</h1>
       <div className="w-full max-w-md mx-auto">
-        <h2 className="text-2xl font-bold mb-2">Selecciona un Código:</h2>
+        <label htmlFor="groupSelect" className="text-2xl font-bold mb-2">Selecciona un Código:</label>
         <select
+          id="groupSelect"
           value={selectedGroup || ''}
           onChange={(e) => handleGroupSelection(e.target.value)}
           className="mb-4 w-full p-2 border-none rounded-md dark:bg-gray-800 dark:text-white"
@@ -91,8 +92,9 @@ export default function Home() {
 
         {selectedGroup && (
           <>
-            <h2 className="text-2xl font-bold mb-2">Selecciona un Archivo para el grupo {selectedGroup}</h2>
+            <label htmlFor="fileSelect" className="text-2xl font-bold mb-2">Selecciona un Archivo para el grupo {selectedGroup}</label>
             <select
+              id="fileSelect"
               value={selectedFile || ''}
               onChange={(e) => handleFileSelection(e.target.value)}
               className="mb-4 w-full p-2 border-none dark:bg-gray-800 dark:text-white rounded-md"
