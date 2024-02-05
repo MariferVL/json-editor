@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useReducer } from 'react';
+import { useEffect, useState, useReducer, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { getFileContent, saveFileContent } from '@/app/api';
 import Modal from '@/app/component/modal';
@@ -59,27 +59,16 @@ export default function FormEditorPage() {
   const languageOptions = [
     { value: 'es', label: 'Default' },
     { value: 'en', label: 'English' },
-    { value: 'zh', label: 'Chinese' },
-    { value: 'hi', label: 'Hindi' },
-    { value: 'ar', label: 'Arabic' },
-    { value: 'pt', label: 'Portuguese' },
-    { value: 'bn', label: 'Bengali' },
-    { value: 'ru', label: 'Russian' },
-    { value: 'ja', label: 'Japanese' },
-    { value: 'pa', label: 'Punjabi' },
   ];
-
-  const createTranslator = (locale) => (key, defaultMessage) => {
-    console.log(`Locale: ${locale}, Key: ${key}, Default Message: ${defaultMessage}`);
-    return defaultMessage;
-  };
 
   const [jsonFormsConfig, setJsonFormsConfig] = useState({
     renderers: materialRenderers,
     cells: materialCells,
-    i18n: { locale, translate: createTranslator(locale) },
+    i18n: { locale: locale },
+    schema: schema,
+    uischema: uischema,
+    data: data,
   });
-
 
   function generateSchema(jsonData) {
     let schema = {};
@@ -126,17 +115,18 @@ export default function FormEditorPage() {
     return uischema;
   }
 
+
   const handleLanguageChange = (event) => {
     const newLocale = event.target.value;
     console.log('New Locale:', newLocale);
     dispatch({ type: actionTypes.SET_LOCALE, payload: newLocale });
-
-    setJsonFormsConfig({
-      ...jsonFormsConfig,
-      i18n: { locale: newLocale, translate: createTranslator(newLocale) },
-    });
+    setJsonFormsConfig((prevConfig) => ({
+      ...prevConfig,
+      i18n: { locale: newLocale },
+    }));
+    window.location.reload();
   };
-
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,43 +163,38 @@ export default function FormEditorPage() {
     if (schema) {
       dispatch({ type: actionTypes.SET_UISCHEMA, payload: generateUischema(schema) });
     }
-
   }, [schema]);
 
   useEffect(() => {
-    setJsonFormsConfig({
-      ...jsonFormsConfig,
+    setJsonFormsConfig((prevConfig) => ({
+      ...prevConfig,
       schema: schema,
       uischema: uischema,
       data: data,
-    });
-
+    }));
   }, [schema, uischema, data]);
 
   useEffect(() => {
     console.log('Updating jsonFormsConfig:', jsonFormsConfig);
-    setJsonFormsConfig({
-      ...jsonFormsConfig,
+    setJsonFormsConfig((prevConfig) => ({
+      ...prevConfig,
       schema: schema,
       uischema: uischema,
       data: data,
-      i18n: { locale: locale, translate: createTranslator(locale) },
-    });
+      i18n: { locale: locale },
+    }));
 
     console.log('schema: ', schema);
     console.log('uischema: ', uischema);
     console.log('data: ', data);
     console.log('locale: ', locale);
-
   }, [schema, uischema, data, locale]);
-
 
   const handleVerifyFormat = () => {
     try {
       JSON.parse(data);
       dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Éxito' });
       dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: 'Contenido Verificado' });
-
     } catch (error) {
       dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
       dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: `El contenido no es un JSON válido: ${error.message}` });
@@ -222,8 +207,7 @@ export default function FormEditorPage() {
       try {
         const result = await saveFileContent(groupCode, fileName, data);
         dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Contenido guardado exitosamente' });
-        dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: result.data});
-
+        dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: result.data });
       } catch (error) {
         console.error('Error saving data:', error);
         dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
@@ -232,7 +216,6 @@ export default function FormEditorPage() {
     } catch (error) {
       dispatch({ type: actionTypes.SET_MODAL_TITLE, payload: 'Error' });
       dispatch({ type: actionTypes.SET_MODAL_CONTENT, payload: `El contenido no es un JSON válido: ${error.message}` });
-
     }
   };
 
