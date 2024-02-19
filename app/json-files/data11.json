@@ -1,15 +1,3 @@
 {
-    "BSF": 10.055,
-    "FTF": 0.451,
-    "BPFI": 14.815,
-    "BPFO": 12.185,
-    "ejes": [],
-    "tipo": "",
-    "marca": "SKF",
-    "modelo": "23048",
-    "elemento": "rodamiento",
-    "engranes": [],
-    "descripcion": "",
-    "datos de placa": [],
-    "numero de parte": "11105867"
+    "Test1": true
 }
