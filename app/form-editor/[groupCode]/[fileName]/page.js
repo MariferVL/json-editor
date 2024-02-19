@@ -246,7 +246,8 @@ export default function FormEditorPage() {
         {jsonFormsConfig.schema && (
           <JsonForms {...jsonFormsConfig} />
         )}
-        <div className="mt-4 flex items-center justify-center">
+        <div 
+        className="mt-4 flex items-center justify-center">
           <div>
             <button
               onClick={handleVerifyFormat}
