@@ -55,6 +55,13 @@ jobs:
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifact
+          path: ./.next
+
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
