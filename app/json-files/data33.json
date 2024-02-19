@@ -1,30 +1,7 @@
 {
-    "ejes": [
-        {
-            "nombre": "polea",
-            "tangentes": [
-                {
-                    "nombre": "lineal",
-                    "diametro": 753,
-                    "unidades": "mm"
-                }
-            ],
-            "engranajes": [],
-            "rodamientos": [
-                {
-                    "id_objeto": 488,
-                    "descripcion": "",
-                    "eje_externo": "* fijo *"
-                }
-            ]
-        }
-    ],
+
     "tipo": "",
     "marca": "",
     "modelo": "",
-    "elemento": "polea",
-    "engranes": [],
-    "descripcion": "",
-    "datos de placa": [],
-    "numero de parte": "12003272"
+    "descripcion": ""
 }
