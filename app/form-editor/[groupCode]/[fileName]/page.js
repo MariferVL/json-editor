@@ -182,3 +182,21 @@ export default function FormEditorPage() {
     </div>
   );
 }
+
+export async function generateStaticParams() {
+  const groups = await fetchGroups();
+  const files = await fetchFiles();
+
+  const params = [];
+
+  for (const group of groups) {
+    for (const file of files) {
+      params.push({
+        groupCode: group.code,
+        fileName: file.name,
+      });
+    }
+  }
+
+  return params;
+}
