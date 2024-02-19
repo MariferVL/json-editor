@@ -73,4 +73,3 @@ For more information on Gitflow, refer to [Gitflow Cheat Sheet](https://danielku
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-```
